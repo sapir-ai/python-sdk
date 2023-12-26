@@ -82,6 +82,6 @@ class InferenceAdapter:
         args, argv = parser.parse_known_args()
 
         logging.basicConfig(level=getattr(logging, args.log_level),
-                            format='%(asctime)s\t%(levelname)\t%(message)s')
+                            format='%(asctime)s\t%(levelname)s\t%(message)s')
 
         return args.action, argv
