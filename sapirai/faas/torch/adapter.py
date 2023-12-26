@@ -12,8 +12,7 @@ from .manager import InferenceManager
 
 
 class Action(Enum):
-    Build = 1
-    Run = 2
+    Run = 1
 
 
 def construct_server_class(handle: Callable[[BinaryIO, BinaryIO], str],
@@ -50,26 +49,23 @@ class InferenceAdapter:
 
     def start(self) -> None:
         action, argv = self.__parse_default_args()
-        if action == Action.Build:
-            self.__build(argv)
-        elif action == Action.Run:
+        if action == Action.Run:
             self.__run(argv)
-
-    def __build(self, argv: list[str]) -> None:
-        logging.debug('start loading state dict')
-        self.__manager.load_state_dict(load(self.__state_dict_path))
-        logging.debug('end loading state dict')
+        else:
+            raise NotImplementedError("unknown action %s" % action)
 
     def __run(self, argv: list[str]) -> None:
         parser = argparse.ArgumentParser()
         parser.add_argument('--port', '-p', default=8080)
         args = parser.parse_args(argv)
 
-        logging.info('start server')
+        logging.debug('start loading state dict')
+        self.__manager.load_state_dict(load(self.__state_dict_path))
+        logging.debug('end loading state dict')
 
+        logging.info('start server')
         server_class = construct_server_class(self.__manager.handle)
         HTTPServer(('', args.port), server_class).serve_forever()
-
         logging.info('end server')
 
     @staticmethod
